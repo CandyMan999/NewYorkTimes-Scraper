@@ -1,0 +1,74 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light font-effect-shadow-multiple">
+    <h3 class="navbar-brand" href="/">NewYork Times Scraper</h3>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/favorites">Saved Atricles</a>
+
+            <button id="clear-all" type="button" class="btn btn-danger mr-2">Clear Articles</button>
+        </div>
+    </div>
+</nav>
+
+
+
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4 text-center font-effect-fire-animation mongo">Saved Articles</h1>
+        <p class="lead text-center font-effect-shadow-multiple addition">New York Times Addition</p>
+    </div>
+</div>
+<hr>
+
+<div class="container-fluid article-container">
+    {{#each favorites}}
+    <div id="{{this._id}}" class="card">
+        <div class="card-header">
+            <h3>
+                <a class="article-link font-effect-shadow-multiple" target="_blank" rel="noopener noreferrer" href="{{this.link}}">{{this.label}}</a>
+                <a data-_id="{{this._id}}" data-toggle="modal" data-target="#exampleModal" class="btn btn-success add mr-2">Add
+                    A Note</a>
+                <a data-_id="{{this._id}}" class="btn btn-success deleteFav mr-2">Delete
+                    from Saved</a>
+            </h3>
+        </div>
+        <div class="card-body">{{this.summary}}</div>
+    </div>
+    <br><br>
+    {{/each}}
+
+    <div id="results-modal" class="container-fluid article-container"></div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{!-- <h5 class="modal-title" id="exampleModalLabel">{{this.label}}</h5> --}}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="notes-container">
+
+                    </div>
+
+                    <input type="text" placeholder="Give your Note A Title" id="title"></input>
+                    <input type="text" placeholder="Enter a Note" id="body"></input>
+                </div>
+                <div class="modal-footer">
+                    {{!-- <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
+                    <button id="save-note" data-_id="${res._id}" type="button" class="btn btn-primary">Save changes</button>
+                    --}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
