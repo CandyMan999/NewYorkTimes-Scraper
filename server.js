@@ -11,7 +11,9 @@ var mongoose = require("mongoose");
 // Require all models
 var db = require("./models");
 
-var PORT = 8080;
+var PORT = process.env.PORT || 8080
+
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newYorkTimes"
 
 // Initialize Express
 var app = express();
@@ -26,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/newYorkTimes", { useNewUrlParser: true });
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Routes
 require("./routes/api-routes.js")(app);

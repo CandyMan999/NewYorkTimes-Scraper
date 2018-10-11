@@ -2,21 +2,18 @@ const db = require('../models');
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-
+//this will wrap and export all my routes so they have access by my server
 module.exports = function (app) {
     //this renders the homePage 
     app.get("/", function (req, res) {
         res.render("index");
     })
 
-    app.get("/saved", function (req, res) {
-        res.render("saved");
-    })
-
+    //this route will run our scraper functionality
     app.get("/scrape", function (req, res) {
-        // Make a request for the news section of `ycombinator`
+        // Make a request for the news section of `nytimes`
         axios.get("https://nytimes.com").then(function (response) {
-            let $ = cheerio.load(response.data);
+            let $ = cheerio.load(response.data); //setting the variable of our scaper so it can be utilized with the same syntax as jquery
 
             let results = [];
 
@@ -26,7 +23,7 @@ module.exports = function (app) {
                 let label = $(element).children().find('h3').text();
                 let link = `https://www.nytimes.com` + $(element).children().find('a').attr('href') + `?action=click&module=Top%20Stories&amp;pgtype=Homepage`;
                 let summary = $(element).children().find('a').text()
-                console.log(label)
+                //console.log(label)
                 if (link && label && summary) {
                     results.push({
                         label,
@@ -37,6 +34,7 @@ module.exports = function (app) {
 
             })
             //console.log("this is my results: ", results)
+            //this will create our articles in the database by passing through our object array stored in the results variable
             db.Article.create(results)
                 .then(function (dbArticle) {
                     console.log(dbArticle);
@@ -45,6 +43,7 @@ module.exports = function (app) {
                     console.log("######## ", err)
 
                 });
+            //this renders our index.handlebars
             //console.log("this is the results: ", results)
             res.render("index")
 
@@ -52,7 +51,7 @@ module.exports = function (app) {
 
     });
 
-
+    //this will grab all of our articles from our database
     app.get("/articles", function (req, res) {
         db.Article.find({}).then(function (articles) {
             res.json(articles)
@@ -61,6 +60,7 @@ module.exports = function (app) {
         })
     })
 
+    //this will delete all articles from the database
     app.delete("/clearall", function (req, res) {
         db.Article.remove({}, function (err, response) {
             if (err) {
@@ -73,6 +73,7 @@ module.exports = function (app) {
         })
     })
 
+    // this will find an article by its ID and update its default favorited value from false to true
     app.put('/articles/:id', function (req, res) {
         db.Article.findByIdAndUpdate(req.params.id, {
             $set: {
@@ -83,17 +84,17 @@ module.exports = function (app) {
         })
     })
 
+    //this route will return all articles in the database with a favorited value of true and then render our saved.handlebars with the articles data with a key of favorites
     app.get("/favorites", function (req, res) {
         db.Article.find({
             favorited: true
         }).then(function (articles) {
             res.render("saved", { favorites: articles });
         })
-
     })
 
+    //this route finds an article by its particular id and also populates its notes ref if one exsits
     app.get("/articles/:id", function (req, res) {
-        // TODO
         db.Article.findOne({
             _id: req.params.id
         }).populate("notes").then(function (dbNote) {
@@ -106,7 +107,8 @@ module.exports = function (app) {
         // and run the populate method with "note",
         // then responds with the article with the note included
     });
-    //route to get a note by id
+
+    //this route grabs a particular note by its ID
     app.get("/notes/:id", function (req, res) {
         // TODO
         db.Note.findOne({
@@ -143,6 +145,7 @@ module.exports = function (app) {
         // and update it's "note" property with the _id of the new note
     });
 
+    //Route deletes specific article from the database based off its ID
     app.delete("/articles/:id", function (req, res) {
         db.Article.remove({
             _id: req.params.id
@@ -157,7 +160,7 @@ module.exports = function (app) {
         })
     })
 
-
+    //This route finds a favorited article by id and resets its favorited value to false
     app.put("/favorites/:id", function (req, res) {
         db.Article.findByIdAndUpdate(req.params.id, {
             $set: {
@@ -176,6 +179,7 @@ module.exports = function (app) {
         })
     })
 
+    //this route deletes a note by its specific ID
     app.delete("/notes/:id", function (req, res) {
         db.Note.remove({
             _id: req.params.id
@@ -189,7 +193,5 @@ module.exports = function (app) {
             }
         })
     })
-
-
 
 }

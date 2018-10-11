@@ -1,3 +1,4 @@
+//this will grab all articles from the database and then dynamically render them to the front-end via template literals
 $.getJSON("/articles", function (articles) {
     articles.forEach(article => {
         console.log(article._id)
@@ -17,13 +18,12 @@ $.getJSON("/articles", function (articles) {
     })
 })
 
-//this will grab our favorited artilcles from the database
-
+//this will all of our favorited articles from the database with a favorites boolean value of true
 $.getJSON("/favorites", function (articles) {
     console.log("here are my articles: ", articles)
 })
 
-//route for grabbing a specific article by the id
+//route for grabbing a specific article by the id and then updating the favorites boolean value from false to true
 $(document).on("click", ".save", function () {
 
     var thisId = $(this).attr("data-_id");
@@ -41,11 +41,7 @@ $(document).on("click", ".save", function () {
         })
 });
 
-
-
-
-
-
+//This will clear out all of the database articles
 $("#clear-all").on("click", function () {
     // Make an AJAX GET request to delete the articles from the db
     $.ajax({
@@ -59,10 +55,7 @@ $("#clear-all").on("click", function () {
     });
 });
 
-
-// Route for grabbing a specific Article by id, populate it with it's note
-
-
+//this will delete a specific article from the database
 $(document).on("click", ".delete", function () {
 
     var thisId = $(this).attr("data-_id");
@@ -72,13 +65,13 @@ $(document).on("click", ".delete", function () {
         method: "DELETE",
         url: "/articles/" + thisId
     })
-        // With that done, add the note information to the page
         .then(function (data) {
             console.log(data);
         })
 
 })
-//this will delete a saved article from the database
+
+//this will get rid of a saved article from our saved page by flipping the boolean of favorited from true back to false
 $(document).on("click", ".deleteFav", function () {
 
     var thisId = $(this).attr("data-_id");
@@ -88,17 +81,15 @@ $(document).on("click", ".deleteFav", function () {
         method: "PUT",
         url: "/favorites/" + thisId
     })
-        // With that done, add the note information to the page
         .then(function (data) {
             console.log(data);
-
+            //here the code will clear the article from the saved page
             $(`#${thisId}`).remove();
-
-
         })
 
 })
 
+//this will delete a specific note based on its ID from the database
 $(document).on("click", ".noteDelete", function () {
 
     var thisId = $(this).attr("data-_id");
@@ -109,24 +100,21 @@ $(document).on("click", ".noteDelete", function () {
         method: "DELETE",
         url: "/notes/" + thisId
     })
-        // With that done, add the note information to the page
+
         .then(function (data) {
             console.log(data);
-
-
         })
-
 })
 
-
+// this will run when you add a note to a saved article
 $(document).on("click", ".add", function () {
-    console.log("clicked")
     $(".modal-header").empty()
     $(".modal-footer").empty()
     var thisId = $(this).attr("data-_id");
     $.getJSON('/articles/' + thisId, function (res) {
         console.log("this is my article: ", res)
-
+        //here we are grabbing data attributes we need from our article and then dynamically creating parts of our modal to append into the modal inside 
+        //of the saved.handlebars file
 
         let modalHeader = `
         <h5 class="modal-title" id="exampleModalLabel">${res.label}</h5>`
@@ -135,9 +123,12 @@ $(document).on("click", ".add", function () {
         let modalFooter = `<button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
         <button id="save-note" data-_id="${res._id}" type="button" class="btn btn-primary">Save changes</button>`
 
+        //here if the article has any notes attached to it already in the database we will dynamically render notes into the modal
         if (res.notes) {
+            //here we need to empty the notes container before appending so we don't get duplicate notes
             $('#notes-container').empty();
             console.log("##### new note, ", res.notes)
+            //this will loop over each note in the array of the articles response and run an api call to retieve data from each corresponding note
             res.notes.forEach(note => {
                 console.log("!!!", note)
                 $.getJSON(`/notes/${note._id}`, function (res) {
@@ -158,6 +149,7 @@ $(document).on("click", ".add", function () {
     })
 })
 
+//this is for when you save the note it posts to the same route as the corresponding articles ID
 $(document).on('click', '#save-note', function () {
     thisId = $(this).attr("data-_id");
     let title = $("#exampleModal .modal-body #title").val().trim()

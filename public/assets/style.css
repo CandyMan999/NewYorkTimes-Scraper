@@ -52,3 +52,7 @@
 .addition {
     font-size: 35px;
 }
+
+.navbar-brand {
+    color: red !important;
+}
